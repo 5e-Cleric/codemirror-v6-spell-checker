@@ -2,12 +2,13 @@ import { EditorView, Decoration, ViewPlugin } from "@codemirror/view";
 import { RangeSetBuilder } from "@codemirror/state";
 import Typo from "typo-js";
 
-// Typo.js expects raw strings (NOT parsed objects)
-const dictionary = new Typo("en_US", false, false, {
-	dictionaryPath: "/dictionaries",
-});
+function createDictionary(lang) {
+	return new Typo(lang, false, false, {
+		dictionaryPath: `./dictionaries/${lang}`,
+	});
+}
 
-function isMisspelled(word) {
+function isMisspelled(dictionary, word) {
 	return !dictionary.check(word);
 }
 
@@ -21,19 +22,16 @@ const misspelledMark = Decoration.mark({
 	class: "cm-spell-error",
 });
 
-function buildDecorations(view) {
+function buildDecorations(view, dictionary) {
 	const builder = new RangeSetBuilder();
-
 	const text = view.state.doc.toString();
 	const words = text.matchAll(/\b[a-zA-Z']+\b/g);
 
 	for (const match of words) {
 		const word = match[0];
-
-		if (isMisspelled(word)) {
+		if (isMisspelled(dictionary, word)) {
 			const from = match.index;
 			const to = from + word.length;
-
 			builder.add(from, to, misspelledMark);
 		}
 	}
@@ -41,23 +39,26 @@ function buildDecorations(view) {
 	return builder.finish();
 }
 
-const spellPlugin = ViewPlugin.fromClass(
-	class {
-		constructor(view) {
-			this.decorations = buildDecorations(view);
-		}
+export function spellChecker(lang = "en_US") {
+	const dictionary = createDictionary(lang);
 
-		update(update) {
-			if (update.docChanged) {
-				this.decorations = buildDecorations(update.view);
+	const spellPlugin = ViewPlugin.fromClass(
+		class {
+			constructor(view) {
+				this.dictionary = dictionary;
+				this.decorations = buildDecorations(view, this.dictionary);
 			}
-		}
-	},
-	{
-		decorations: (v) => v.decorations,
-	},
-);
 
-export function spellChecker() {
+			update(update) {
+				if (update.docChanged) {
+					this.decorations = buildDecorations(update.view, this.dictionary);
+				}
+			}
+		},
+		{
+			decorations: (v) => v.decorations,
+		},
+	);
+
 	return [theme, spellPlugin];
 }
