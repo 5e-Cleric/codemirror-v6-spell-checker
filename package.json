@@ -1,0 +1,25 @@
+{
+	"name": "codemirror-v6-spell-checker",
+	"version": "0.1.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/5e-Cleric/codemirror-v6-spell-checker.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "module",
+	"bugs": {
+		"url": "https://github.com/5e-Cleric/codemirror-v6-spell-checker/issues"
+	},
+	"homepage": "https://github.com/5e-Cleric/codemirror-v6-spell-checker#readme",
+	"dependencies": {
+		"@codemirror/state": "^6.6.0",
+		"@codemirror/view": "^6.43.0"
+	}
+}
