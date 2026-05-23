@@ -48,8 +48,21 @@ function buildDecorations(view, dictionary, ignoreSet) {
 
 const defaultIgnore = ["https", "colspan"];
 
+function expandIgnoreList(words) {
+	const expanded = [];
+
+	for (const w of words) {
+		const lower = w.toLowerCase();
+
+		expanded.push(lower); // cleric
+		expanded.push(lower + "s"); // clerics
+	}
+
+	return expanded;
+}
+
 export function spellChecker(lang = "en_US", ignore = []) {
-	const ignoreSet = new Set([...defaultIgnore.map((w) => w.toLowerCase()), ...ignore.map((w) => w.toLowerCase())]);
+	const expandedIgnore = expandIgnoreList([...defaultIgnore, ...userIgnore]);
 	let dictionaryPromise = loadDictionary(lang);
 
 	const spellPlugin = ViewPlugin.fromClass(
