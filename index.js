@@ -46,6 +46,14 @@ function buildDecorations(view, dictionary, ignoreSet) {
 	return builder.finish();
 }
 
+function debounce(fn, delay) {
+	let timer = null;
+	return (...args) => {
+		clearTimeout(timer);
+		timer = setTimeout(() => fn(...args), delay);
+	};
+}
+
 const defaultIgnore = ["https", "colspan"];
 
 function expandIgnoreList(words) {
@@ -60,8 +68,7 @@ function expandIgnoreList(words) {
 
 	return expanded;
 }
-
-export function spellChecker(lang = "en_US", ignore = []) {
+export function spellChecker(lang = "en_US", userIgnore = [], delay = 300) {
 	const ignoreSet = new Set(expandIgnoreList([...defaultIgnore, ...ignore]));
 	let dictionaryPromise = loadDictionary(lang);
 
@@ -71,16 +78,23 @@ export function spellChecker(lang = "en_US", ignore = []) {
 				this.decorations = Decoration.none;
 				this.dictionary = null;
 
+				// Debounced update function
+				this.scheduleUpdate = debounce(() => {
+					if (this.dictionary) {
+						this.decorations = buildDecorations(view, this.dictionary, ignoreSet);
+						view.dispatch({ effects: [] });
+					}
+				}, delay);
+
 				dictionaryPromise.then((dict) => {
 					this.dictionary = dict;
-					this.decorations = buildDecorations(view, dict, ignoreSet);
-					view.dispatch({ effects: [] });
+					this.scheduleUpdate();
 				});
 			}
 
 			update(update) {
 				if (this.dictionary && update.docChanged) {
-					this.decorations = buildDecorations(update.view, this.dictionary, ignoreSet);
+					this.scheduleUpdate();
 				}
 			}
 		},
