@@ -5,7 +5,7 @@ import { defaultIgnore } from "./dictionaries/defaultIgnoreList";
 
 // Load dictionary files from CDN (or any public URL)
 async function loadDictionary(lang) {
-	const base = `https://cdn.jsdelivr.net/gh/5e-Cleric/codemirror-v6-spell-checker/dictionaries/${lang}/${lang}`;
+	const base = `https://cdn.jsdelivr.net/gh/5e-Cleric/codemirror-v6-spell-checker/dictionaries/${lang.slice(0, 2)}/${lang}`;
 
 	const [aff, dic] = await Promise.all([
 		fetch(`${base}.aff`).then((r) => r.text()),
