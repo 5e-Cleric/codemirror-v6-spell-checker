@@ -4,7 +4,14 @@ import Typo from "typo-js";
 
 
 // Typo.js expects raw strings (NOT parsed objects)
-const dictionary = new Typo("en_US");
+const dictionary = new Typo(
+  "en_US",
+  false,
+  false,
+  {
+    dictionaryPath: "/dictionaries"
+  }
+)
 
 function isMisspelled(word) {
 	return !dictionary.check(word);
