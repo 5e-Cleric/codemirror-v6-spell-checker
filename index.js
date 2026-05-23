@@ -11,6 +11,7 @@ async function loadDictionary(lang) {
 		fetch(`${base}.dic`).then((r) => r.text()),
 	]);
 
+	
 	return new Typo(lang, aff, dic, { platform: "any" });
 }
 
