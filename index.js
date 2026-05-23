@@ -3,23 +3,23 @@ import { RangeSetBuilder } from "@codemirror/state";
 import Typo from "typo-js";
 import { defaultIgnore } from "./dictionaries/defaultIgnoreList";
 
-function resolveLang(lang) {
-	const normalized = lang.toLowerCase().replace(/-/g, "_");
+function resolveCandidates(lang) {
+	const base = lang.toLowerCase().replace(/-/g, "_").split("_")[0];
 
-	const map = {
-		en: "en_US",
-		en_us: "en_US",
-		en_gb: "en_GB",
-		es: "es_ES",
-		fr: "fr_FR",
-		de: "de_DE",
-		no: "nb_no",
+	const localeExceptions = {
+		no: ["nb_NO"],
+		en: ["en_EN", "en_US"],
 	};
 
-	if (map[normalized]) return map[normalized];
+	const upper = base.toUpperCase();
 
-	const base = normalized.split("_")[0];
-	return map[base] || normalized;
+	const candidates = [base, `${base}_${upper}`];
+
+	if (localeExceptions[base]) {
+		candidates.push(...localeExceptions[base]);
+	}
+
+	return [...new Set(candidates)];
 }
 
 // Load dictionary files from CDN (or any public URL)
