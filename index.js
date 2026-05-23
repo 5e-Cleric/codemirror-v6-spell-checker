@@ -1,6 +1,7 @@
 import { EditorView, Decoration, ViewPlugin } from "@codemirror/view";
 import { RangeSetBuilder } from "@codemirror/state";
 import Typo from "typo-js";
+import { defaultIgnore } from "./dictionaries/defaultIgnoreList";
 
 // Load dictionary files from CDN (or any public URL)
 async function loadDictionary(lang) {
@@ -54,8 +55,6 @@ function debounce(fn, delay) {
 	};
 }
 
-const defaultIgnore = ["https", "colspan"];
-
 function expandIgnoreList(words) {
 	const expanded = [];
 
@@ -94,6 +93,7 @@ export function spellChecker(lang = "en_US", ignore = [], delay = 300) {
 
 			update(update) {
 				if (this.dictionary && update.docChanged) {
+					this.decorations= Decoration.none;
 					this.scheduleUpdate();
 				}
 			}
