@@ -1,14 +1,15 @@
 import { EditorView, Decoration, ViewPlugin } from "@codemirror/view";
 import { RangeSetBuilder } from "@codemirror/state";
-import nspell from "nspell"
-import aff from "dictionary-en/index.aff"
-import dic from "dictionary-en/index.dic"
+import Typo from "typo-js";
 
-const spell = nspell(aff, dic);
+import aff from "dictionary-en/index.aff";
+import dic from "dictionary-en/index.dic";
+
+// Typo.js expects raw strings (NOT parsed objects)
+const spell = new Typo("en_US", aff, dic);
 
 function isMisspelled(word) {
-  if (!spell) return false
-  return !spell.correct(word)
+	return !spell.check(word);
 }
 
 const theme = EditorView.baseTheme({
@@ -25,7 +26,6 @@ function buildDecorations(view) {
 	const builder = new RangeSetBuilder();
 
 	const text = view.state.doc.toString();
-
 	const words = text.matchAll(/\b[a-zA-Z']+\b/g);
 
 	for (const match of words) {
