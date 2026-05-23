@@ -1,7 +1,10 @@
 import { EditorView, Decoration, ViewPlugin } from "@codemirror/view";
 import { RangeSetBuilder } from "@codemirror/state";
 import Typo from "typo-js";
-import dictionary from "dictionary-en";
+
+
+// Typo.js expects raw strings (NOT parsed objects)
+const dictionary = new Typo("en_US");
 
 function isMisspelled(word) {
 	return !dictionary.check(word);
