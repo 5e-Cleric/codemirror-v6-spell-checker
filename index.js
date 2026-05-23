@@ -2,14 +2,16 @@ import { EditorView, Decoration, ViewPlugin } from "@codemirror/view";
 import { RangeSetBuilder } from "@codemirror/state";
 import Typo from "typo-js";
 
-function createDictionary(lang) {
-	return new Typo(lang, false, false, {
-		dictionaryPath: `/dictionaries/${lang}`,
-	});
-}
+// Load dictionary files from CDN (or any public URL)
+async function loadDictionary(lang) {
+	const base = `https://github.com/5e-Cleric/codemirror-v6-spell-checker/tree/main/dictionaries/${lang}/${lang}`;
 
-function isMisspelled(dictionary, word) {
-	return !dictionary.check(word);
+	const [aff, dic] = await Promise.all([
+		fetch(`${base}.aff`).then((r) => r.text()),
+		fetch(`${base}.dic`).then((r) => r.text()),
+	]);
+
+	return new Typo(lang, aff, dic, { platform: "any" });
 }
 
 const theme = EditorView.baseTheme({
@@ -29,7 +31,7 @@ function buildDecorations(view, dictionary) {
 
 	for (const match of words) {
 		const word = match[0];
-		if (isMisspelled(dictionary, word)) {
+		if (!dictionary.check(word)) {
 			const from = match.index;
 			const to = from + word.length;
 			builder.add(from, to, misspelledMark);
@@ -40,17 +42,23 @@ function buildDecorations(view, dictionary) {
 }
 
 export function spellChecker(lang = "en_US") {
-	const dictionary = createDictionary(lang);
+	let dictionaryPromise = loadDictionary(lang);
 
 	const spellPlugin = ViewPlugin.fromClass(
 		class {
 			constructor(view) {
-				this.dictionary = dictionary;
-				this.decorations = buildDecorations(view, this.dictionary);
+				this.decorations = Decoration.none;
+				this.dictionary = null;
+
+				dictionaryPromise.then((dict) => {
+					this.dictionary = dict;
+					this.decorations = buildDecorations(view, dict);
+					view.dispatch({ effects: [] }); // force redraw
+				});
 			}
 
 			update(update) {
-				if (update.docChanged) {
+				if (this.dictionary && update.docChanged) {
 					this.decorations = buildDecorations(update.view, this.dictionary);
 				}
 			}
