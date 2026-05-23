@@ -4,7 +4,7 @@ import Typo from "typo-js";
 
 function createDictionary(lang) {
 	return new Typo(lang, false, false, {
-		dictionaryPath: `./dictionaries/${lang}`,
+		dictionaryPath: `/dictionaries/${lang}`,
 	});
 }
 
