@@ -1,13 +1,10 @@
 import { EditorView, Decoration, ViewPlugin } from "@codemirror/view";
 import { RangeSetBuilder } from "@codemirror/state";
 import nspell from "nspell"
-import dictionary from "dictionary-en"
+import aff from "dictionary-en/index.aff"
+import dic from "dictionary-en/index.dic"
 
-let spell
-
-dictionary((err, dict) => {
-  spell = nspell(dict)
-})
+const spell = nspell(aff, dic);
 
 function isMisspelled(word) {
   if (!spell) return false
