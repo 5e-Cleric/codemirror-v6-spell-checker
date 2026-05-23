@@ -49,10 +49,7 @@ function buildDecorations(view, dictionary, ignoreSet) {
 const defaultIgnore = ["https", "colspan"];
 
 export function spellChecker(lang = "en_US", ignore = []) {
-	const ignoreSet = new Set([
-		...defaultIgnore.map((w) => w.toLowerCase()),
-		...userIgnore.map((w) => w.toLowerCase()),
-	]);
+	const ignoreSet = new Set([...defaultIgnore.map((w) => w.toLowerCase()), ...ignore.map((w) => w.toLowerCase())]);
 	let dictionaryPromise = loadDictionary(lang);
 
 	const spellPlugin = ViewPlugin.fromClass(
