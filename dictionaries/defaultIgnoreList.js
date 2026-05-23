@@ -1,7 +1,4 @@
 export const defaultIgnore = [
-	"https",
-	"http",
-	"www",
 	"url",
 	"uri",
 	"src",

@@ -25,21 +25,37 @@ const misspelledMark = Decoration.mark({
 	class: "cm-spell-error",
 });
 
+const urlRegex = /https?:\/\/[^\s]+|www\.[^\s]+/i;
+
 function buildDecorations(view, dictionary, ignoreSet) {
 	const builder = new RangeSetBuilder();
 	const text = view.state.doc.toString();
+
+	const urlRegex = /https?:\/\/[^\s]+|www\.[^\s]+/gi;
+
+	// Mark URL ranges so we can skip them
+	const urlRanges = [];
+	let match;
+	while ((match = urlRegex.exec(text)) !== null) {
+		urlRanges.push([match.index, match.index + match[0].length]);
+	}
+
 	const words = text.matchAll(/\b[a-zA-Z']+\b/g);
 
-	for (const match of words) {
+	outer: for (const match of words) {
 		const word = match[0];
 		const lower = word.toLowerCase();
+		const from = match.index;
+		const to = from + word.length;
 
-		// Skip ignored words
 		if (ignoreSet.has(lower)) continue;
 
+		for (const [uFrom, uTo] of urlRanges) {
+			if (from >= uFrom && to <= uTo) continue outer;
+		}
+
+		// 3. Spellcheck
 		if (!dictionary.check(word)) {
-			const from = match.index;
-			const to = from + word.length;
 			builder.add(from, to, misspelledMark);
 		}
 	}
@@ -67,6 +83,7 @@ function expandIgnoreList(words) {
 
 	return expanded;
 }
+
 export function spellChecker(lang = "en_US", ignore = [], delay = 300) {
 	const ignoreSet = new Set(expandIgnoreList([...defaultIgnore, ...ignore]));
 	let dictionaryPromise = loadDictionary(lang);
@@ -93,7 +110,7 @@ export function spellChecker(lang = "en_US", ignore = [], delay = 300) {
 
 			update(update) {
 				if (this.dictionary && update.docChanged) {
-					this.decorations= Decoration.none;
+					this.decorations = Decoration.none;
 					this.scheduleUpdate();
 				}
 			}
