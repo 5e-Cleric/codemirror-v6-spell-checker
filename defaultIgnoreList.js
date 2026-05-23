@@ -1,4 +1,5 @@
 export const defaultIgnore = [
+	"CodeMirror",
 	"url",
 	"uri",
 	"src",

@@ -1,9 +1,10 @@
 import { EditorView, Decoration, ViewPlugin } from "@codemirror/view";
 import { RangeSetBuilder } from "@codemirror/state";
 import Typo from "typo-js";
-import { defaultIgnore } from "./dictionaries/defaultIgnoreList";
+import { defaultIgnore } from "./defaultIgnoreList";
+import { debounce } from "./helpers";
 
-function resolveCandidates(lang) {
+function resolveLang(lang) {
 	const base = lang.toLowerCase().replace(/-/g, "_").split("_")[0];
 
 	const localeExceptions = {
@@ -22,7 +23,6 @@ function resolveCandidates(lang) {
 	return [...new Set(candidates)];
 }
 
-// Load dictionary files from CDN (or any public URL)
 async function loadDictionary(lang) {
 	const resolved = resolveLang(lang);
 	const folder = resolved.split("_")[0];
@@ -36,6 +36,7 @@ async function loadDictionary(lang) {
 
 	return new Typo(resolved, aff, dic, { platform: "any" });
 }
+
 const theme = EditorView.baseTheme({
 	".cm-spell-error": {
 		textDecoration: "underline wavy red",
@@ -82,14 +83,6 @@ function buildDecorations(view, dictionary, ignoreSet) {
 	}
 
 	return builder.finish();
-}
-
-function debounce(fn, delay) {
-	let timer = null;
-	return (...args) => {
-		clearTimeout(timer);
-		timer = setTimeout(() => fn(...args), delay);
-	};
 }
 
 function expandIgnoreList(words) {
