@@ -1,5 +1,18 @@
 import { EditorView, Decoration, ViewPlugin } from "@codemirror/view";
 import { RangeSetBuilder } from "@codemirror/state";
+import nspell from "nspell"
+import dictionary from "dictionary-en"
+
+let spell
+
+dictionary((err, dict) => {
+  spell = nspell(dict)
+})
+
+function isMisspelled(word) {
+  if (!spell) return false
+  return !spell.correct(word)
+}
 
 const theme = EditorView.baseTheme({
 	".cm-spell-error": {
@@ -21,7 +34,7 @@ function buildDecorations(view) {
 	for (const match of words) {
 		const word = match[0];
 
-		if (word === "helo") {
+		if (isMisspelled(word)) {
 			const from = match.index;
 			const to = from + word.length;
 
