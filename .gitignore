@@ -10,3 +10,4 @@ npm-debug.log*
 
 # npm link artifacts
 *.tgz
+node_modules/.package-lock.json
