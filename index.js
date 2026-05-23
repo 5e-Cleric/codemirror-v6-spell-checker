@@ -62,7 +62,7 @@ function expandIgnoreList(words) {
 }
 
 export function spellChecker(lang = "en_US", ignore = []) {
-	const expandedIgnore = expandIgnoreList([...defaultIgnore, ...userIgnore]);
+	const ignoreSet = expandIgnoreList([...defaultIgnore, ...ignore]);
 	let dictionaryPromise = loadDictionary(lang);
 
 	const spellPlugin = ViewPlugin.fromClass(
