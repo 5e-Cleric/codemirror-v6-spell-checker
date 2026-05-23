@@ -3,18 +3,39 @@ import { RangeSetBuilder } from "@codemirror/state";
 import Typo from "typo-js";
 import { defaultIgnore } from "./dictionaries/defaultIgnoreList";
 
+function resolveLang(lang) {
+	const normalized = lang.toLowerCase().replace(/-/g, "_");
+
+	const map = {
+		en: "en_US",
+		en_us: "en_US",
+		en_gb: "en_GB",
+		es: "es_ES",
+		fr: "fr_FR",
+		de: "de_DE",
+		no: "nb_no",
+	};
+
+	if (map[normalized]) return map[normalized];
+
+	const base = normalized.split("_")[0];
+	return map[base] || normalized;
+}
+
 // Load dictionary files from CDN (or any public URL)
 async function loadDictionary(lang) {
-	const base = `https://cdn.jsdelivr.net/gh/5e-Cleric/codemirror-v6-spell-checker/dictionaries/${lang.slice(0, 2)}/${lang}`;
+	const resolved = resolveLang(lang);
+	const folder = resolved.split("_")[0];
+
+	const base = `https://cdn.jsdelivr.net/gh/5e-Cleric/codemirror-v6-spell-checker/dictionaries/${folder}/${resolved}`;
 
 	const [aff, dic] = await Promise.all([
 		fetch(`${base}.aff`).then((r) => r.text()),
 		fetch(`${base}.dic`).then((r) => r.text()),
 	]);
 
-	return new Typo(lang, aff, dic, { platform: "any" });
+	return new Typo(resolved, aff, dic, { platform: "any" });
 }
-
 const theme = EditorView.baseTheme({
 	".cm-spell-error": {
 		textDecoration: "underline wavy red",
