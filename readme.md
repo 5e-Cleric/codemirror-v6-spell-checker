@@ -1,7 +1,6 @@
 # CodeMirror v6 Spell Checker
 Simple spell checking for CodeMirror 6. It will underline in red any misspelled words. You may set up a list of ignored words. Works great in conjunction with other CodeMirror modes, like GitHub Flavored Markdown.
 
-
 ![Screenshot](https://ik.imagekit.io/5eCleric/Captura%20de%20pantalla%202026-05-23%20174312.png)
 
 ## Install
@@ -16,7 +15,6 @@ npm install codemirror-v6-spell-checker --save
 A lightweight CodeMirror 6 extension that performs spell checking using plain dictionary lookup. It highlights misspelled words via editor decorations and supports language fallback resolution.
 
 
-
 ## Features
 
 - Dictionary-based spell checking (no external engine required)
@@ -25,8 +23,6 @@ A lightweight CodeMirror 6 extension that performs spell checking using plain di
 - Custom ignore list
 - Debounced updates for performance
 - CodeMirror 6 decoration-based highlighting
-
-
 
 ## Usage
 
